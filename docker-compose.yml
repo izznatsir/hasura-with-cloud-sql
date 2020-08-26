@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+    cloud_sql_proxy:
+        image: asia.gcr.io/cloudsql-docker/gce-proxy:1.16
+        command: '/cloud_sql_proxy -instances=api-izznatsir-com:asia-southeast2:hasura=tcp:0.0.0.0:5432 -credential_file=/config/api-izznatsir-com-661c61355c0f.json'
+        volumes:
+            - ./config:/config
+        networks:
+            - backend
+        ports:
+            - 127.0.0.1:5432:5432
+
+    hasura:
+        image: hasura/graphql-engine:latest
+        restart: always
+        env_file: .env
+        depends_on:
+            - cloud_sql_proxy
+        networks:
+            - backend
+        ports:
+            - 127.0.0.1:8080:8080
+
+networks:
+    backend:
